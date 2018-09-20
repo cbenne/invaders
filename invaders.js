@@ -1,5 +1,8 @@
 var canvas = document.getElementById('gameCanvas');
 var canvasctx = canvas.getContext('2d');
+//var backbody = document.body.cloneNode();
+//var backbuffer = backbody.getElementByClassname("canvas").gameCanvas.getContext('2d');
+//var canvasctx = canvas.getContext('2d');
 var start = null;
 var lastBullet = null;
 var alienLastBullet = null;
@@ -47,6 +50,8 @@ var currentInput = {
 var score = 0;
 var lives = 3;
 var play = true;
+var gameover = false;
+var restart = false;
 function drawAlien1up(x,y) {
   canvasctx.fillStyle = '#BBBBFF';
   canvasctx.strokeStyle = '#000066'
@@ -91,9 +96,24 @@ function drawBullet(x,y) {
 
 function pause() {
   play = !(play);
+  if (restart) {
+    window.location.reload(false);
+  }
+  else if (gameover) {
+    restart = true;
+    GameOverButton();
+  }
+  else if (play) {
+    pauseButton();
+    window.requestAnimationFrame(loop);
+    button.blur();
+  } else {
+    playButton();
+  }
 }
 
 function pauseButton() {
+  button.style.fontSize = "12px";
   button.style.border = "1px solid white";
   button.style.backgroundColor = "black";
   button.style.color = "white";
@@ -101,7 +121,27 @@ function pauseButton() {
   button.style.left = (canvas.getBoundingClientRect().x + canvasX - 30) + "px";
   button.style.top = (canvas.getBoundingClientRect().y + 15) + "px";
   button.textContent = "I I";
-  button.onclick = "pause()";
+}
+function GameOverButton() {
+  button.style.fontSize = "25px";
+  button.style.border = "1px solid white";
+  button.style.backgroundColor = "aqua";
+  button.style.color = "white";
+  button.style.position = "absolute";
+  button.style.left = (canvas.getBoundingClientRect().x + (canvasX/2) - 50) + "px";
+  button.style.top = (canvas.getBoundingClientRect().y + (canvasY/2) - 15) + "px";
+  button.textContent = "Restart";
+}
+
+function playButton() {
+  button.style.fontSize = "25px";
+  button.style.border = "1px solid white";
+  button.style.backgroundColor = "aqua";
+  button.style.color = "white";
+  button.style.position = "absolute";
+  button.style.left = (canvas.getBoundingClientRect().x + (canvasX/2) - 50) + "px";
+  button.style.top = (canvas.getBoundingClientRect().y + (canvasY/2) - 15) + "px";
+  button.textContent = "Continue";
 }
 
 function resetAliens() {
@@ -165,6 +205,7 @@ function handleKeyup(event) {
 window.addEventListener('keyup', handleKeyup);
 
 function update(elapsedTime, elapsedBullet, elapsedAlienBullet, timestamp) {
+
   alienArm += armChange * elapsedTime;
   if (Math.abs(alienArm) > 5 ) {
     armChange = 0 - armChange;
@@ -242,6 +283,9 @@ function update(elapsedTime, elapsedBullet, elapsedAlienBullet, timestamp) {
       tempbullets.push(bullet);
     }
   }
+  if (alienY > canvasY - 30) {
+    gameover = true;
+  }
   bullets = tempbullets;
   tempbullets = [];
   while (alienBullets.length) {
@@ -250,7 +294,7 @@ function update(elapsedTime, elapsedBullet, elapsedAlienBullet, timestamp) {
     if (Math.abs(bullet[0] - shipX) < 10 && Math.abs(bullet[1] - (shipY + 12)) < 12) {
       lives --;
       if (lives < 1) {
-        alert('Game Over');
+        gameover = true;
       }
     }
     else if (bullet[1] < canvasY) {
@@ -270,6 +314,10 @@ function update(elapsedTime, elapsedBullet, elapsedAlienBullet, timestamp) {
   shipX = Math.min(shipX, canvasX - 10);
   shipY = Math.max(shipY, minY);
   shipY = Math.min(shipY, (canvasY - 30));
+
+  if (gameover) {
+    pause();
+  }
 }
 
 function render() {
@@ -327,5 +375,9 @@ for (i=0; i < 25; i++) {
 }
 resetAliens();
 pauseButton();
+button.addEventListener('click', function(event) {
+    event.preventDefault();
+    pause();
+  });
 document.body.appendChild(button);
 window.requestAnimationFrame(loop);
