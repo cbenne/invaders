@@ -1,8 +1,8 @@
-var canvas = document.getElementById('gameCanvas');
-var canvasctx = canvas.getContext('2d');
-//var backbody = document.body.cloneNode();
-//var backbuffer = backbody.getElementByClassname("canvas").gameCanvas.getContext('2d');
-//var canvasctx = canvas.getContext('2d');
+var currentcanvas = document.getElementById('gameCanvas');
+var currentcanvasctx = currentcanvas.getContext('2d');
+var backbody = document.body.cloneNode("gameCanvas");
+var backbuffer = backbody.children.gameCanvas
+var canvasctx = backbuffer.getContext('2d');
 var start = null;
 var lastBullet = null;
 var alienLastBullet = null;
@@ -118,8 +118,8 @@ function pauseButton() {
   button.style.backgroundColor = "black";
   button.style.color = "white";
   button.style.position = "absolute";
-  button.style.left = (canvas.getBoundingClientRect().x + canvasX - 30) + "px";
-  button.style.top = (canvas.getBoundingClientRect().y + 15) + "px";
+  button.style.left = (currentcanvas.getBoundingClientRect().x + canvasX - 30) + "px";
+  button.style.top = (currentcanvas.getBoundingClientRect().y + 15) + "px";
   button.textContent = "I I";
 }
 function GameOverButton() {
@@ -128,8 +128,8 @@ function GameOverButton() {
   button.style.backgroundColor = "aqua";
   button.style.color = "white";
   button.style.position = "absolute";
-  button.style.left = (canvas.getBoundingClientRect().x + (canvasX/2) - 50) + "px";
-  button.style.top = (canvas.getBoundingClientRect().y + (canvasY/2) - 15) + "px";
+  button.style.left = (currentcanvas.getBoundingClientRect().x + (canvasX/2) - 50) + "px";
+  button.style.top = (currentcanvas.getBoundingClientRect().y + (canvasY/2) - 15) + "px";
   button.textContent = "Restart";
 }
 
@@ -139,8 +139,8 @@ function playButton() {
   button.style.backgroundColor = "aqua";
   button.style.color = "white";
   button.style.position = "absolute";
-  button.style.left = (canvas.getBoundingClientRect().x + (canvasX/2) - 50) + "px";
-  button.style.top = (canvas.getBoundingClientRect().y + (canvasY/2) - 15) + "px";
+  button.style.left = (currentcanvas.getBoundingClientRect().x + (canvasX/2) - 50) + "px";
+  button.style.top = (currentcanvas.getBoundingClientRect().y + (canvasY/2) - 15) + "px";
   button.textContent = "Continue";
 }
 
@@ -321,7 +321,7 @@ function update(elapsedTime, elapsedBullet, elapsedAlienBullet, timestamp) {
 }
 
 function render() {
-  canvasctx.clearRect(0, 0, canvas.width, canvas.height);
+  canvasctx.clearRect(0, 0, currentcanvas.width, currentcanvas.height);
   canvasctx.fillStyle = 'white';
   for (i=0; i<25; i++) {
     canvasctx.beginPath();
@@ -364,6 +364,9 @@ function loop(timestamp) {
   start = timestamp;
   update(elapsedTime, elapsedBullet, elapsedAlienBullet, timestamp,);
   render();
+  currentcanvasctx.clearRect(0,0,currentcanvas.width, currentcanvas.height);
+  currentcanvasctx.drawImage(backbuffer, 0, 0);
+
   if (play) {
     window.requestAnimationFrame(loop);
   }
